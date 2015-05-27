@@ -44,7 +44,7 @@ project.eclipse.classpath.file.whenMerged { cp ->
 repositories {
     maven {
       name 'Our repository'
-      url 'http://192.168.0.1:8080/repository/internal/'
+      url 'http://192.168.11.11:8080/repository/internal/'
     }
   mavenCentral()
 }
@@ -77,7 +77,7 @@ uploadArchives {
   repositories.mavenDeployer {
     configuration = configurations.archives
     repository(
-      url: 'http://192.168.0.1:8080/repository/internal/'
+      url: 'http://192.168.11.11:8080/repository/internal/'
     )
     pom.project {
       name project.name
