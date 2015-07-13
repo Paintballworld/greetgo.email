@@ -5,7 +5,9 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.List;
 
+import javax.xml.bind.DatatypeConverter;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -14,7 +16,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class EmailSerializer {
-  
   public void serialize(PrintStream out, Email email) {
     out.println("<?xml version='1.0' encoding='UTF-8' ?>");
     out.println("<letter>");
@@ -25,7 +26,26 @@ public class EmailSerializer {
     printTag(out, "from", email.getFrom());
     printTag(out, "subject", email.getSubject());
     printTag(out, "body", email.getBody());
+    if (!email.getAttachments().isEmpty()) {
+      printAttachemts(out, email.getAttachments());
+    }
     out.println("</letter>");
+  }
+  
+  private void printAttachemts(PrintStream out, List<Attachment> attachments) {
+    out.println();
+    for (Attachment attachment : attachments) {
+      printAttachment(out, attachment);
+    }
+  }
+  
+  private void printAttachment(PrintStream out, Attachment attachment) {
+    if (attachment == null) return;
+    if (attachment.data == null) return;
+    
+    out.print("\t<attachment name=\"" + attachment.name + "\">");
+    out.print(DatatypeConverter.printBase64Binary(attachment.data));
+    out.println("</attachment>");
   }
   
   public void serialize(File file, Email email) throws Exception {
@@ -88,10 +108,17 @@ public class EmailSerializer {
       text.append(ch, start, length);
     }
     
+    Attachment attachment = null;
+    
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes)
         throws SAXException {
       text = null;
+      
+      if ("attachment".equals(qName)) {
+        attachment = new Attachment();
+        attachment.name = attributes.getValue("name");
+      }
     }
     
     @Override
@@ -115,6 +142,13 @@ public class EmailSerializer {
       if ("subject".equals(qName)) {
         target.setSubject(text.toString());
         return;
+      }
+      if ("attachment".equals(qName)) {
+        if (attachment != null) {
+          attachment.data = DatatypeConverter.parseBase64Binary(text.toString());
+          target.getAttachments().add(attachment);
+          attachment = null;
+        }
       }
     }
   }

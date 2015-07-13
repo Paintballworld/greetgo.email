@@ -5,7 +5,7 @@ apply plugin: 'maven'
 group = 'kz.greetgo'
 
 sourceCompatibility = 1.7
-version = '0.0.4'
+version = '0.0.5'
 
 def nowDate = new Date()
 def nowFormattedDate = nowDate.format("yyyy-MM-dd/HH:mm:ss")
@@ -27,8 +27,6 @@ eclipse {
     sourceCompatibility = 1.7
     targetCompatibility = 1.7
   }
-
-  pathVariables 'GRADLE_USER_HOME': gradle.gradleUserHomeDir
 }
 
 project.eclipse.classpath.file.whenMerged { cp ->

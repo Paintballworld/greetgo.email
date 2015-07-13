@@ -3,9 +3,11 @@ package kz.greetgo.email;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
@@ -17,8 +19,8 @@ public class SenderEmailControllerTest {
     String sendDir = "build/send";
     String sendedDir = "build/sended";
     
-    EmailSaver saver = new EmailSaver("asd", sendDir);
-    EmailSaver realSender = new EmailSaver("asd", "build/sendedReal");
+    EmailSaver saver = new EmailSaver("saver", sendDir);
+    EmailSaver realSender = new EmailSaver("realSender", "build/sendedReal");
     
     SenderEmailController c = new SenderEmailController(realSender, new File(sendDir), new File(
         sendedDir));
@@ -26,8 +28,14 @@ public class SenderEmailControllerTest {
     Email e = new Email();
     e.setBody("body");
     e.setSubject("subject");
-    e.setFrom("from");
-    e.setTo("to");
+    e.setFrom("itukibayev@greet-go.com");
+    e.setTo("itukibayev@greet-go.com");
+    
+    List<Attachment> attachments = new ArrayList<Attachment>();
+    byte[] data = new byte[10];
+    attachments.add(new Attachment("attachment1", data));
+    attachments.add(new Attachment("attachment2", data));
+    e.getAttachments().addAll(attachments);
     
     saver.send(e);
     
