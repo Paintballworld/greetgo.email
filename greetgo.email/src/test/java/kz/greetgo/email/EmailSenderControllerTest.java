@@ -11,7 +11,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-public class SenderEmailControllerTest {
+public class EmailSenderControllerTest {
   
   @Test
   public void send() throws Exception {
@@ -22,14 +22,14 @@ public class SenderEmailControllerTest {
     EmailSaver saver = new EmailSaver("saver", sendDir);
     EmailSaver realSender = new EmailSaver("realSender", "build/sendedReal");
     
-    SenderEmailController c = new SenderEmailController(realSender, new File(sendDir), new File(
+    EmailSenderController c = new EmailSenderController(realSender, new File(sendDir), new File(
         sendedDir));
     
     Email e = new Email();
     e.setBody("body");
     e.setSubject("subject");
-    e.setFrom("itukibayev@greet-go.com");
-    e.setTo("itukibayev@greet-go.com");
+    e.setFrom("from");
+    e.setTo("to");
     
     List<Attachment> attachments = new ArrayList<Attachment>();
     byte[] data = new byte[10];
@@ -61,7 +61,7 @@ public class SenderEmailControllerTest {
     
     fOld.setLastModified(cal.getTimeInMillis());
     
-    SenderEmailController c = new SenderEmailController(null, null, sendedDir);
+    EmailSenderController c = new EmailSenderController(null, null, sendedDir);
     c.cleanOldSendedFiles(10);
     
     assertThat(fOld.exists()).isFalse();

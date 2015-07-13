@@ -7,7 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-public class SenderEmailController {
+public class EmailSenderController {
   
   private boolean inSendOperation = false;
   
@@ -17,7 +17,7 @@ public class SenderEmailController {
   
   private final EmailSerializer emailSerializer = new EmailSerializer();
   
-  public SenderEmailController(EmailSender emailSender, File sendDir, File sendedDir) {
+  public EmailSenderController(EmailSender emailSender, File sendDir, File sendedDir) {
     this.emailSender = emailSender;
     this.sendDir = sendDir;
     this.sendedDir = sendedDir;
