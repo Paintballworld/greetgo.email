@@ -1,5 +1,6 @@
 package kz.greetgo.email;
 
+import static kz.greetgo.email.EmailUtil.dummyCheck;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.io.File;
@@ -48,18 +49,18 @@ public class EmailSenderControllerTest {
   public void cleanOldSendedFiles() throws Exception {
     
     File sendedDir = new File("build/sended_" + (new Date().getTime()));
-    sendedDir.mkdirs();
+    dummyCheck(sendedDir.mkdirs());
     
     File fOld = new File(sendedDir, "old.xml");
     File fNew = new File(sendedDir, "new.xml");
     
-    fOld.createNewFile();
-    fNew.createNewFile();
+    dummyCheck(fOld.createNewFile());
+    dummyCheck(fNew.createNewFile());
     
     Calendar cal = new GregorianCalendar();
     cal.add(Calendar.DAY_OF_YEAR, -100);
     
-    fOld.setLastModified(cal.getTimeInMillis());
+    dummyCheck(fOld.setLastModified(cal.getTimeInMillis()));
     
     EmailSenderController c = new EmailSenderController(null, null, sendedDir);
     c.cleanOldSendedFiles(10);
@@ -67,7 +68,7 @@ public class EmailSenderControllerTest {
     assertThat(fOld.exists()).isFalse();
     assertThat(fNew.exists()).isTrue();
     
-    fNew.delete();
-    sendedDir.delete();
+    dummyCheck(fNew.delete());
+    dummyCheck(sendedDir.delete());
   }
 }

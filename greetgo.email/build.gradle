@@ -18,6 +18,8 @@ jar {
   }
 }
 
+eclipse.project.natures 'org.springsource.ide.eclipse.gradle.core.nature'
+
 eclipse {
   jdt {
     //
@@ -42,12 +44,14 @@ project.eclipse.classpath.file.whenMerged { cp ->
 repositories {
     maven {
       name 'Our repository'
-      url 'http://192.168.11.11:8080/repository/internal/'
+      url System.getenv('GG_REPO')
     }
 }
 
 dependencies {
   ext.springVersion = "3.0.7.RELEASE"
+  
+  compile 'com.google.code.findbugs:annotations:2.0.1'
 
   testCompile 'org.testng:testng:6.1.1'
   testCompile 'org.easytesting:fest-assert-core:2.0M10'
@@ -74,7 +78,7 @@ uploadArchives {
   repositories.mavenDeployer {
     configuration = configurations.archives
     repository(
-      url: 'http://192.168.11.11:8080/repository/internal/'
+      url: System.getenv('GG_REPO')
     )
     pom.project {
       name project.name

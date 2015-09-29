@@ -1,6 +1,5 @@
 package kz.greetgo.email;
 
-
 public class Attachment {
   public String name;
   public byte[] data;
@@ -9,6 +8,6 @@ public class Attachment {
   
   public Attachment(String name, byte[] data) {
     this.name = name;
-    this.data = data;
+    this.data = data.clone();
   }
 }

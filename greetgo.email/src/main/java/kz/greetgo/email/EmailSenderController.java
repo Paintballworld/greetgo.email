@@ -1,5 +1,7 @@
 package kz.greetgo.email;
 
+import static kz.greetgo.email.EmailUtil.dummyCheck;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.text.SimpleDateFormat;
@@ -33,7 +35,9 @@ public class EmailSenderController {
     } catch (Exception e) {
       throw new RuntimeException(e);
     } finally {
-      inSendOperation = false;
+      synchronized (this) {
+        inSendOperation = false;
+      }
     }
   }
   
@@ -46,17 +50,17 @@ public class EmailSenderController {
     EmailInfo info = getFirstFromDir(sendDir);
     if (info == null) return false;
     
-    info.file.renameTo(info.sendingFile);
+    dummyCheck(info.file.renameTo(info.sendingFile));
     
     try {
       emailSender.send(info.email);
     } catch (Exception exception) {
-      info.sendingFile.renameTo(info.file);
+      dummyCheck(info.sendingFile.renameTo(info.file));
       throw exception;
     }
     
-    info.sendedFile.getParentFile().mkdirs();
-    info.sendingFile.renameTo(info.sendedFile);
+    dummyCheck(info.sendedFile.getParentFile().mkdirs());
+    dummyCheck(info.sendingFile.renameTo(info.sendedFile));
     
     return true;
   }
@@ -103,7 +107,7 @@ public class EmailSenderController {
     if (files.length == 0) return;
     
     for (File file : files) {
-      file.delete();
+      dummyCheck(file.delete());
     }
   }
 }

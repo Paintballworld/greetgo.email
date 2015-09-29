@@ -1,5 +1,7 @@
 package kz.greetgo.email;
 
+import static kz.greetgo.email.EmailUtil.dummyCheck;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -22,7 +24,7 @@ public class EmailSaver implements EmailSender {
     String filename = createFileName();
     
     File file = new File(sendDir + "/" + filename + ".creating");
-    file.getParentFile().mkdirs();
+    dummyCheck(file.getParentFile().mkdirs());
     
     EmailSerializer emailSerializer = new EmailSerializer();
     try {
@@ -31,7 +33,7 @@ public class EmailSaver implements EmailSender {
       throw new RuntimeException(e);
     }
     
-    file.renameTo(new File(sendDir + "/" + filename));
+    dummyCheck(file.renameTo(new File(sendDir + "/" + filename)));
   }
   
   private String createFileName() {
