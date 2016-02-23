@@ -6,7 +6,7 @@ apply plugin: 'idea'
 group = 'kz.greetgo'
 
 sourceCompatibility = 1.7
-version = '0.0.6'
+version = '0.0.8'
 
 def nowDate = new Date()
 def nowFormattedDate = nowDate.format("yyyy-MM-dd/HH:mm:ss")
@@ -54,10 +54,11 @@ dependencies {
   
   compile 'com.google.code.findbugs:annotations:2.0.1'
 
-  testCompile 'org.testng:testng:6.5.1'
-  testCompile 'org.easytesting:fest-assert-core:2.0M10'
+  compile 'javax.mail:mail:1.4.7'
+  compile 'org.easytesting:fest-assert-core:2.0M10'
 
-  testCompile 'javax.mail:mail:1.4.7'
+  testCompile 'org.testng:testng:6.5.1'
+
 
 }
 

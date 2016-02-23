@@ -43,7 +43,7 @@ public class RealSendEmailProbe1 {
     msg.setText("Это тестовое письмо - удалите его немедленно", "UTF-8");
     msg.setSentDate(new Date());
 
-    SMTPTransport t = (SMTPTransport) session.getTransport("smtps");
+    SMTPTransport t = (SMTPTransport) session.getTransport("smtp");
 
     t.connect("smtp.gmail.com", "your_email@gmail.com", "password_for_your_email");
     t.sendMessage(msg, msg.getAllRecipients());
