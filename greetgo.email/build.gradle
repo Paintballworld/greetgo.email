@@ -6,7 +6,7 @@ apply plugin: 'idea'
 group = 'kz.greetgo'
 
 sourceCompatibility = 1.7
-version = '0.0.8'
+version = '0.0.9'
 
 def nowDate = new Date()
 def nowFormattedDate = nowDate.format("yyyy-MM-dd/HH:mm:ss")
@@ -37,21 +37,21 @@ project.eclipse.classpath.file.whenMerged { cp ->
     cp.entries.findAll { it.path.contains('JRE_CONTAINER') }.each {
 
       it.path += "/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/" +
-          "JavaSE-$project.sourceCompatibility"
+        "JavaSE-$project.sourceCompatibility"
     }
   }
 }
 
 repositories {
-    maven {
-      name 'Our repository'
-      url System.getenv('GG_REPO')
-    }
+  maven {
+    name 'Our repository'
+    url System.getenv('GG_REPO')
+  }
 }
 
 dependencies {
   ext.springVersion = "3.0.7.RELEASE"
-  
+
   compile 'com.google.code.findbugs:annotations:2.0.1'
 
   compile 'javax.mail:mail:1.4.7'
@@ -89,5 +89,16 @@ uploadArchives {
       name project.name
       packaging 'jar'
     }
+  }
+}
+
+sourceSets {
+  main {
+    resources.srcDirs = ["src/main/java", "src/main/resources"]
+    //output.resourcesDir = "build/classes/main"
+  }
+  test {
+    resources.srcDirs = ["src/test/java", "src/test/resources"]
+    //output.resourcesDir = "build/classes/test"
   }
 }
