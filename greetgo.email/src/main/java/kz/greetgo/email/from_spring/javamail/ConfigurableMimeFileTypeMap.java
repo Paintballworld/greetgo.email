@@ -4,6 +4,7 @@ import javax.activation.FileTypeMap;
 import javax.activation.MimetypesFileTypeMap;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class ConfigurableMimeFileTypeMap extends FileTypeMap {
 
@@ -36,13 +37,22 @@ public class ConfigurableMimeFileTypeMap extends FileTypeMap {
   }
 
   protected FileTypeMap createFileTypeMap(Resource mappingLocation, String[] mappings) throws IOException {
-    MimetypesFileTypeMap fileTypeMap = (mappingLocation != null) ?
-      new MimetypesFileTypeMap(mappingLocation.getInputStream()) : new MimetypesFileTypeMap();
-    if (mappings != null) {
-      for (int i = 0; i < mappings.length; i++) {
-        fileTypeMap.addMimeTypes(mappings[i]);
+    final MimetypesFileTypeMap fileTypeMap;
+    if (mappingLocation == null) {
+      fileTypeMap = new MimetypesFileTypeMap();
+    } else {
+      final InputStream inputStream = mappingLocation.getInputStream();
+      if (inputStream == null) {
+        throw new NullPointerException("mappingLocation.getInputStream() == null");
+      } else {
+        fileTypeMap = new MimetypesFileTypeMap(inputStream);
       }
     }
+
+    if (mappings != null) for (String mapping : mappings) {
+      fileTypeMap.addMimeTypes(mapping);
+    }
+
     return fileTypeMap;
   }
 
