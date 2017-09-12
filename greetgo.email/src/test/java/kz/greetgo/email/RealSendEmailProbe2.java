@@ -38,7 +38,7 @@ public class RealSendEmailProbe2 {
 
     Transport.send(message);
 
-    System.out.println("Done");
+    System.out.println("Done WOW");
 
   }
 }
