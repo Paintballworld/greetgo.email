@@ -43,11 +43,12 @@ project.eclipse.classpath.file.whenMerged { cp ->
   }
 }
 
+////////////////////////////////////////////////////////
+///////// T E S T VERSION //////////////////////////////
+////////////////////////////////////////////////////////
+
 repositories {
-  maven {
-    name 'Our repository'
-    url System.getenv('GG_REPO')
-  }
+  mavenCentral()
 }
 
 dependencies {
@@ -132,15 +133,15 @@ project.tasks.create('uploadToMavenCentral', Upload.class) {
 
       repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
         authentication(
-            userName: System.getenv('LIB_SONATYPE_ACCOUNT_HASH_ID'),
-            password: System.getenv('LIB_SONATYPE_ACCOUNT_HASH_PASSWORD')
+          userName: System.getenv('LIB_SONATYPE_ACCOUNT_HASH_ID'),
+          password: System.getenv('LIB_SONATYPE_ACCOUNT_HASH_PASSWORD')
         )
       }
 
       snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
         authentication(
-            userName: System.getenv('LIB_SONATYPE_ACCOUNT_HASH_ID'),
-            password: System.getenv('LIB_SONATYPE_ACCOUNT_HASH_PASSWORD')
+          userName: System.getenv('LIB_SONATYPE_ACCOUNT_HASH_ID'),
+          password: System.getenv('LIB_SONATYPE_ACCOUNT_HASH_PASSWORD')
         )
       }
 
