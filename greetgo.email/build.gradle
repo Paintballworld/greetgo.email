@@ -44,10 +44,7 @@ project.eclipse.classpath.file.whenMerged { cp ->
 }
 
 repositories {
-  maven {
-    name 'Our repository'
-    url System.getenv('GG_REPO')
-  }
+  mavenCentral()
 }
 
 dependencies {
