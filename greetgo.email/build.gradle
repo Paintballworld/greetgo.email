@@ -20,8 +20,6 @@ jar {
   }
 }
 
-// Just testing branch possibilities
-
 eclipse.project.natures 'org.springsource.ide.eclipse.gradle.core.nature'
 
 eclipse {
