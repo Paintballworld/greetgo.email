@@ -20,6 +20,9 @@ jar {
   }
 }
 
+//mock changes to test greetgo.brancher
+
+
 eclipse.project.natures 'org.springsource.ide.eclipse.gradle.core.nature'
 
 eclipse {
