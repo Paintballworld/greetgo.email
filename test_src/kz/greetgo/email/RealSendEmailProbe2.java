@@ -12,7 +12,7 @@ public class RealSendEmailProbe2 {
   public static void main(String[] args) throws Exception {
 
     final String username = "jour_email_account@gmail.com";
-    final String password = "password_for_jour_email_account";
+    final String password = "password_for_your_email_account";
 
     Properties props = new Properties();
     props.put("mail.smtp.starttls.enable", "true");

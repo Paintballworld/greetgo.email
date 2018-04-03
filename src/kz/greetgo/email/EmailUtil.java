@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 
 public class EmailUtil {
-  public static void dummyCheck(@SuppressWarnings("unused") boolean tmp) {}
 
   public static List<File> findFilesRecursively(File directory, String extension) {
     final List<File> result = new ArrayList<>();

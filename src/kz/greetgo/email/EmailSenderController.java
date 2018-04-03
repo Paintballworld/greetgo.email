@@ -1,14 +1,11 @@
 package kz.greetgo.email;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static kz.greetgo.email.EmailUtil.dummyCheck;
 
 public class EmailSenderController {
 
@@ -52,23 +49,18 @@ public class EmailSenderController {
     try {
       emailSender.send(info.email);
     } catch (Exception exception) {
-      dummyCheck(info.sendingFile.renameTo(info.file));
+      info.sendingFile.renameTo(info.file);
       throw exception;
     }
 
-    dummyCheck(info.sendedFile.getParentFile().mkdirs());
-    dummyCheck(info.sendingFile.renameTo(info.sendedFile));
+    info.sendedFile.getParentFile().mkdirs();
+    info.sendingFile.renameTo(info.sendedFile);
 
     return true;
   }
 
   private EmailInfo getFirstFromDir(File emailSendDir) throws Exception {
-    File[] files = emailSendDir.listFiles(new FileFilter() {
-      @Override
-      public boolean accept(File pathname) {
-        return pathname.isFile() && pathname.getName().endsWith(".xml");
-      }
-    });
+    File[] files = emailSendDir.listFiles(pathname -> pathname.isFile() && pathname.getName().endsWith(".xml"));
     if (files == null) return null;
     if (files.length == 0) return null;
 
@@ -79,18 +71,9 @@ public class EmailSenderController {
     ret.sendingFile = new File(ret.file.getAbsolutePath() + ".sending");
 
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    ret.sendedFile = new File(sentDir + "/" + format.format(new Date()) + "/"
-      + ret.file.getName());
+    ret.sendedFile = new File(sentDir + "/" + format.format(new Date()) + "/" + ret.file.getName());
 
     return ret;
-  }
-
-  /**
-   * Use {@link #cleanOldSentFiles(int)}
-   */
-  @Deprecated
-  public void cleanOldSendedFiles(final int daysBefore) {
-    cleanOldSentFiles(daysBefore);
   }
 
   /**

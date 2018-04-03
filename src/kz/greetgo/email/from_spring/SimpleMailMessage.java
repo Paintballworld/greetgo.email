@@ -26,8 +26,7 @@ public class SimpleMailMessage implements MailMessage, Serializable {
   /**
    * Create a new SimpleMailMessage.
    */
-  public SimpleMailMessage() {
-  }
+  public SimpleMailMessage() {}
 
   /**
    * Copy constructor.

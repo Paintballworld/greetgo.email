@@ -20,6 +20,7 @@ public class MailSendException extends MailException {
 
   public MailSendException(Map failedMessages) {
     super(null);
+    //noinspection unchecked
     this.failedMessages.putAll(failedMessages);
   }
 
@@ -28,7 +29,7 @@ public class MailSendException extends MailException {
   }
 
   public String getMessage() {
-    StringBuffer msg = new StringBuffer();
+    StringBuilder msg = new StringBuilder();
     String superMsg = super.getMessage();
     msg.append(superMsg != null ? superMsg : "Could not send mails: ");
     for (Iterator subExs = this.failedMessages.values().iterator(); subExs.hasNext(); ) {
@@ -57,9 +58,7 @@ public class MailSendException extends MailException {
   }
 
   public void printStackTrace(PrintWriter pw) {
-    if (this.failedMessages.isEmpty()) {
-      super.printStackTrace(pw);
-    } else {
+    if (!this.failedMessages.isEmpty()) {
       pw.println(this);
       for (Iterator subExs = this.failedMessages.values().iterator(); subExs.hasNext(); ) {
         Exception subEx = (Exception) subExs.next();
@@ -68,6 +67,8 @@ public class MailSendException extends MailException {
           pw.println();
         }
       }
+    } else {
+      super.printStackTrace(pw);
     }
   }
 
