@@ -7,20 +7,29 @@ apply plugin: 'signing'
 group = 'kz.greetgo'
 
 sourceCompatibility = 1.8
-version = '0.0.10'
+version = '0.1.0'
 
 def nowDate = new Date()
 def nowFormattedDate = nowDate.format("yyyy-MM-dd/HH:mm:ss")
 
 jar {
   manifest {
-    attributes 'Implementation-Title': project.name,
-      'Implementation-Version': version, 'Implementation-Vendor': 'greetgo!',
-      'Built-By': System.getProperty("user.name"), 'Built-At': nowFormattedDate
+    attributes 'Implementation-Title': project.name
+    attributes 'Implementation-Version': version
+    attributes 'Implementation-Vendor': 'greetgo!'
+    attributes 'Created-By': System.getProperty("user.name")
+    attributes 'Created-At': nowFormattedDate
   }
 }
-
 eclipse.project.natures 'org.springsource.ide.eclipse.gradle.core.nature'
+
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+
+sourceSets.main.java.srcDirs = ["src"]
+sourceSets.main.resources.srcDirs = ["src", "src_resources"]
+sourceSets.test.java.srcDirs = ["test_src"]
+sourceSets.test.resources.srcDirs = ["test_src", "test_resources"]
 
 eclipse {
   jdt {
@@ -43,7 +52,11 @@ project.eclipse.classpath.file.whenMerged { cp ->
   }
 }
 
+def ggRepo = System.getenv('GG_REPO')
+
 repositories {
+  mavenLocal()
+  if (ggRepo?.trim()) maven { url ggRepo.trim() }
   mavenCentral()
 }
 
@@ -88,17 +101,6 @@ artifacts {
   archives javadocJar, sourcesJar
 }
 
-sourceSets {
-  main {
-    resources.srcDirs = ["src/main/java", "src/main/resources"]
-    //output.resourcesDir = "build/classes/main"
-  }
-  test {
-    resources.srcDirs = ["src/test/java", "src/test/resources"]
-    //output.resourcesDir = "build/classes/test"
-  }
-}
-
 if (System.getenv('LIB_SIGN_GPG_KEY_ID') != null && System.getenv('LIB_SIGN_GPG_KEY_ID').length() > 0) {
 
   gradle.taskGraph.whenReady { taskGraph ->
@@ -129,15 +131,15 @@ project.tasks.create('uploadToMavenCentral', Upload.class) {
 
       repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
         authentication(
-            userName: System.getenv('LIB_SONATYPE_ACCOUNT_HASH_ID'),
-            password: System.getenv('LIB_SONATYPE_ACCOUNT_HASH_PASSWORD')
+          userName: System.getenv('LIB_SONATYPE_ACCOUNT_HASH_ID'),
+          password: System.getenv('LIB_SONATYPE_ACCOUNT_HASH_PASSWORD')
         )
       }
 
       snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
         authentication(
-            userName: System.getenv('LIB_SONATYPE_ACCOUNT_HASH_ID'),
-            password: System.getenv('LIB_SONATYPE_ACCOUNT_HASH_PASSWORD')
+          userName: System.getenv('LIB_SONATYPE_ACCOUNT_HASH_ID'),
+          password: System.getenv('LIB_SONATYPE_ACCOUNT_HASH_PASSWORD')
         )
       }
 
@@ -145,7 +147,7 @@ project.tasks.create('uploadToMavenCentral', Upload.class) {
         name project.name
         packaging 'jar'
 
-        description 'Hot configs. To manage apllication configuration'
+        description 'Fast sending email util'
         url 'http://tech.greetgo.kz/libs/greetgo/email.php'
 
         scm {
@@ -164,7 +166,7 @@ project.tasks.create('uploadToMavenCentral', Upload.class) {
         developers {
           developer {
             id 'greetgo'
-            name 'Yevgeniy Kolpakov'
+            name 'Evgeniy Kolpakov'
             email 'tech@greet-go.com'
           }
           developer {
