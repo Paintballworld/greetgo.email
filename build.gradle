@@ -1,8 +1,24 @@
+buildscript {
+  repositories {
+    mavenLocal()
+    if (System.getenv('GG_REPO')?.trim()) maven { url System.getenv('GG_REPO') }
+    mavenCentral()
+  }
+  dependencies {
+    classpath "kz.greetgo.plugins:greetgo.gradle.plugins:0.0.2"
+  }
+}
+
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
 apply plugin: 'idea'
 apply plugin: 'signing'
+//noinspection UnnecessaryQualifiedReference
+apply plugin: kz.greetgo.gradle.plugins.ShortJavaPathPlugin
+//noinspection UnnecessaryQualifiedReference
+apply plugin: kz.greetgo.gradle.plugins.MavenUploadPlugin
 
 group = 'kz.greetgo'
 
@@ -21,15 +37,21 @@ jar {
     attributes 'Created-At': nowFormattedDate
   }
 }
+
+
+uploadToMavenCentral {
+  description = "Email-send method using in greetgo!"
+  url = 'https://github.com/greetgo/greetgo.email'
+  scm.url = 'https://github.com/greetgo/greetgo.email.git'
+  developer {
+    id = 'pompei'
+    name = 'Evgeniy Kolpakov'
+    email = 'ekolpakov@greet-go.com'
+  }
+}
+
+
 eclipse.project.natures 'org.springsource.ide.eclipse.gradle.core.nature'
-
-compileJava.options.encoding = 'UTF-8'
-compileTestJava.options.encoding = 'UTF-8'
-
-sourceSets.main.java.srcDirs = ["src"]
-sourceSets.main.resources.srcDirs = ["src", "src_resources"]
-sourceSets.test.java.srcDirs = ["test_src"]
-sourceSets.test.resources.srcDirs = ["test_src", "test_resources"]
 
 eclipse {
   jdt {
@@ -73,117 +95,3 @@ dependencies {
 }
 
 test { useTestNG() }
-
-task javadocJar(type: Jar, dependsOn: 'javadoc') {
-  from javadoc.destinationDir
-  classifier = 'javadoc'
-}
-
-task sourcesJar(type: Jar) {
-  from sourceSets.main.allSource
-  classifier = 'sources'
-}
-
-uploadArchives {
-  repositories.mavenDeployer {
-    configuration = configurations.archives
-    repository(
-      url: System.getenv('GG_REPO')
-    )
-    pom.project {
-      name project.name
-      packaging 'jar'
-    }
-  }
-}
-
-artifacts {
-  archives javadocJar, sourcesJar
-}
-
-if (System.getenv('LIB_SIGN_GPG_KEY_ID') != null && System.getenv('LIB_SIGN_GPG_KEY_ID').length() > 0) {
-
-  gradle.taskGraph.whenReady { taskGraph ->
-    if (taskGraph.allTasks.any { it instanceof Sign }) {
-      allprojects { ext."signing.keyId" = System.getenv('LIB_SIGN_GPG_KEY_ID') }
-      allprojects { ext."signing.secretKeyRingFile" = System.getenv('LIB_SIGN_GPG_KEY_LOCATION') }
-      allprojects { ext."signing.password" = System.getenv('LIB_SIGN_GPG_KEY_PASSWORD') }
-    }
-  }
-
-}
-
-signing {
-  sign configurations.archives
-}
-
-tasks.withType(Javadoc) {
-  options.addStringOption('Xdoclint:none', '-quiet')
-  options.addStringOption('encoding', 'UTF-8')
-  options.addStringOption('charSet', 'UTF-8')
-}
-
-project.tasks.create('uploadToMavenCentral', Upload.class) {
-  configuration = configurations.archives
-  repositories {
-    mavenDeployer {
-      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-        authentication(
-          userName: System.getenv('LIB_SONATYPE_ACCOUNT_HASH_ID'),
-          password: System.getenv('LIB_SONATYPE_ACCOUNT_HASH_PASSWORD')
-        )
-      }
-
-      snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-        authentication(
-          userName: System.getenv('LIB_SONATYPE_ACCOUNT_HASH_ID'),
-          password: System.getenv('LIB_SONATYPE_ACCOUNT_HASH_PASSWORD')
-        )
-      }
-
-      pom.project {
-        name project.name
-        packaging 'jar'
-
-        description 'Fast sending email util'
-        url 'http://tech.greetgo.kz/libs/greetgo/email.php'
-
-        scm {
-          connection 'scm:git:https://github.com/greetgo/email'
-          developerConnection 'scm:git:https://github.com/greetgo/email'
-          url 'https://github.com/greetgo/email'
-        }
-
-        licenses {
-          license {
-            name 'The Apache License, Version 2.0'
-            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-          }
-        }
-
-        developers {
-          developer {
-            id 'greetgo'
-            name 'Evgeniy Kolpakov'
-            email 'tech@greet-go.com'
-          }
-          developer {
-            id 'yakzhanov'
-            name 'Yerlan Akzhanov'
-            email 'yakzhanov@greet-go.com'
-          }
-          developer {
-            id 'mkasyanov'
-            name 'Maxim Kasyanov'
-            email 'mkasyanov@greet-go.com'
-          }
-
-        }
-      }
-    }
-  }
-}
-
-
