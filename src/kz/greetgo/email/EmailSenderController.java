@@ -24,10 +24,13 @@ public class EmailSenderController {
   }
 
   public void sendAllExistingEmails() {
-    if (!sendingIsGoingOn.compareAndSet(false, true)) return;
+    if (!sendingIsGoingOn.compareAndSet(false, true)) {
+      return;
+    }
     try {
       //noinspection StatementWithEmptyBody
-      while (hasToSendOne()) {}
+      while (hasToSendOne()) {
+      }
     } catch (Exception e) {
       throw new RuntimeException(e);
     } finally {
@@ -36,7 +39,7 @@ public class EmailSenderController {
   }
 
   private static class EmailInfo {
-    File file, sendingFile, sendedFile;
+    File file, sendingFile, sentFile;
     Email email;
   }
 
@@ -53,16 +56,20 @@ public class EmailSenderController {
       throw exception;
     }
 
-    info.sendedFile.getParentFile().mkdirs();
-    info.sendingFile.renameTo(info.sendedFile);
+    info.sentFile.getParentFile().mkdirs();
+    info.sendingFile.renameTo(info.sentFile);
 
     return true;
   }
 
   private EmailInfo getFirstFromDir(File emailSendDir) throws Exception {
     File[] files = emailSendDir.listFiles(pathname -> pathname.isFile() && pathname.getName().endsWith(".xml"));
-    if (files == null) return null;
-    if (files.length == 0) return null;
+    if (files == null) {
+      return null;
+    }
+    if (files.length == 0) {
+      return null;
+    }
 
     EmailInfo ret = new EmailInfo();
     ret.file = files[0];
@@ -71,7 +78,7 @@ public class EmailSenderController {
     ret.sendingFile = new File(ret.file.getAbsolutePath() + ".sending");
 
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    ret.sendedFile = new File(sentDir + "/" + format.format(new Date()) + "/" + ret.file.getName());
+    ret.sentFile = new File(sentDir + "/" + format.format(new Date()) + "/" + ret.file.getName());
 
     return ret;
   }
@@ -88,7 +95,9 @@ public class EmailSenderController {
     for (File file : EmailUtil.findFilesRecursively(sentDir, ".xml")) {
       cal.setTimeInMillis(file.lastModified());
       cal.add(Calendar.DAY_OF_YEAR, daysBefore);
-      if (cal.getTime().before(now)) deleteWithParents(file);
+      if (cal.getTime().before(now)) {
+        deleteWithParents(file);
+      }
     }
   }
 

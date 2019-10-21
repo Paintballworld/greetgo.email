@@ -1,12 +1,5 @@
-buildscript {
-  repositories {
-    mavenLocal()
-    if (System.getenv('GG_REPO')?.trim()) maven { url System.getenv('GG_REPO') }
-    mavenCentral()
-  }
-  dependencies {
-    classpath "kz.greetgo.plugins:greetgo.gradle.plugins:0.0.2"
-  }
+plugins {
+  id "kz.greetgo.upload-to-maven" version "0.0.5"
 }
 
 
@@ -15,29 +8,11 @@ apply plugin: 'eclipse'
 apply plugin: 'maven'
 apply plugin: 'idea'
 apply plugin: 'signing'
-//noinspection UnnecessaryQualifiedReference
-apply plugin: kz.greetgo.gradle.plugins.ShortJavaPathPlugin
-//noinspection UnnecessaryQualifiedReference
-apply plugin: kz.greetgo.gradle.plugins.MavenUploadPlugin
 
 group = 'kz.greetgo'
 
 sourceCompatibility = 1.8
 version = '0.1.0'
-
-def nowDate = new Date()
-def nowFormattedDate = nowDate.format("yyyy-MM-dd/HH:mm:ss")
-
-jar {
-  manifest {
-    attributes 'Implementation-Title': project.name
-    attributes 'Implementation-Version': version
-    attributes 'Implementation-Vendor': 'greetgo!'
-    attributes 'Created-By': System.getProperty("user.name")
-    attributes 'Created-At': nowFormattedDate
-  }
-}
-
 
 uploadToMavenCentral {
   description = "Email-send method using in greetgo!"
@@ -50,29 +25,6 @@ uploadToMavenCentral {
   }
 }
 
-
-eclipse.project.natures 'org.springsource.ide.eclipse.gradle.core.nature'
-
-eclipse {
-  jdt {
-    //
-    // if you want to alter the java versions (by default they are configured with
-    // gradle java plugin settings):
-    //
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
-  }
-}
-
-project.eclipse.classpath.file.whenMerged { cp ->
-  if (project.hasProperty("sourceCompatibility")) {
-    cp.entries.findAll { it.path.contains('JRE_CONTAINER') }.each {
-
-      it.path += "/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/" +
-        "JavaSE-$project.sourceCompatibility"
-    }
-  }
-}
 
 def ggRepo = System.getenv('GG_REPO')
 
@@ -95,3 +47,102 @@ dependencies {
 }
 
 test { useTestNG() }
+
+tasks.withType(Javadoc) {
+  options.addStringOption('Xdoclint:none', '-quiet')
+  options.addStringOption('encoding', 'UTF-8')
+  options.addStringOption('charSet', 'UTF-8')
+}
+
+test.useTestNG()
+
+idea.module.downloadSources = true
+idea.module.downloadJavadoc = true
+idea.module.inheritOutputDirs = false
+idea.module.outputDir = file("$buildDir/classes/main/")
+idea.module.testOutputDir = file("$buildDir/classes/test/")
+
+sourceSets.main.java.srcDirs = ["src"]
+sourceSets.test.java.srcDirs = ["test_src"]
+sourceSets.main.resources.srcDirs = ["src_resources"]
+sourceSets.test.resources.srcDirs = ["test_resources"]
+
+sourceSets.main.resources {
+  srcDirs += sourceSets.main.java.srcDirs
+  exclude '**/*.java'
+}
+sourceSets.test.resources {
+  srcDirs += sourceSets.test.java.srcDirs
+  exclude '**/*.java'
+}
+
+jar {
+  manifest {
+    attributes 'Specification-Title': project.name
+    attributes 'Specification-Version': archiveVersion
+    attributes 'Specification-Vendor': "greetgo!"
+    attributes 'Created-By': System.getProperty("user.name")
+    attributes 'Created-At': new Date().format("yyyy-MM-dd/HH:mm:ss")
+    attributes 'Git-Last-Commit-Id': extractLastGitCommitId()
+  }
+}
+
+def extractLastGitCommitId() {
+  def gitFolder = "${rootProject.projectDir}/.git/"
+
+  def takeFromHash = 17
+
+  //noinspection GroovyAssignabilityCheck
+  if (!new File(gitFolder + "HEAD").exists()) {
+    return "UNKNOWN"
+  }
+
+  /*
+   * '.git/HEAD' contains either
+   *      in case of detached head: the currently checked out commit hash
+   *      otherwise: a reference to a file containing the current commit hash
+   */
+  //noinspection GroovyAssignabilityCheck
+  def head = new File(gitFolder + "HEAD").text.split(":") // .git/HEAD
+  def isCommit = head.length == 1 // e5a7c79edabbf7dd39888442df081b1c9d8e88fd
+  // def isRef = head.length > 1     // ref: refs/heads/master
+
+  if (isCommit) {
+    return head[0].trim().take(takeFromHash) // e5a7c79edabb
+  }
+
+  def reference = head[1].trim()
+
+  //noinspection GroovyAssignabilityCheck
+  def refHead = new File(gitFolder + reference) // .git/refs/heads/master
+  if (refHead.exists()) {
+    return refHead.text.trim().take(takeFromHash)
+  }
+
+  //noinspection GroovyAssignabilityCheck
+  def packedRefsFile = new File(gitFolder + "packed-refs")
+
+  if (packedRefsFile.exists()) {
+
+    def lines = packedRefsFile.text.split("\n")
+
+    for (String line : lines) {
+
+      if (line.trim().startsWith("#")) {
+        continue
+      }
+
+      def split = line.split("\\s+")
+      if (split.length == 2) {
+
+        if (split[1] == reference) {
+          return split[0]
+        }
+
+      }
+    }
+
+  }
+
+  throw new Exception("Cannot find commit id")
+}

@@ -1,10 +1,8 @@
 package kz.greetgo.email;
 
 import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import javax.xml.bind.DatatypeConverter;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
@@ -12,9 +10,11 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Base64;
 import java.util.List;
 
 public class EmailSerializer {
+
   public void serialize(PrintStream out, Email email) {
     out.println("<?xml version='1.0' encoding='UTF-8' ?>");
     out.println("<letter>");
@@ -43,7 +43,7 @@ public class EmailSerializer {
     if (attachment.data == null) return;
 
     out.print("\t<attachment name=\"" + attachment.name + "\">");
-    out.print(DatatypeConverter.printBase64Binary(attachment.data));
+    out.print(Base64.getEncoder().encodeToString(attachment.data));
     out.println("</attachment>");
   }
 
@@ -53,6 +53,7 @@ public class EmailSerializer {
     out.close();
   }
 
+  @SuppressWarnings("unused")
   public void serialize(OutputStream outStream, Email email) throws Exception {
     PrintStream out = new PrintStream(outStream, false, "UTF-8");
     serialize(out, email);
@@ -85,14 +86,8 @@ public class EmailSerializer {
   }
 
   public Email deserialize(File file) throws Exception {
-    FileInputStream fin = null;
-    try {
-      fin = new FileInputStream(file);
+    try (FileInputStream fin = new FileInputStream(file)) {
       return deserialize(fin);
-    } finally {
-      if (fin != null) {
-        fin.close();
-      }
     }
   }
 
@@ -102,7 +97,7 @@ public class EmailSerializer {
     StringBuilder text = null;
 
     @Override
-    public void characters(char[] ch, int start, int length) throws SAXException {
+    public void characters(char[] ch, int start, int length) {
       if (text == null) text = new StringBuilder();
       text.append(ch, start, length);
     }
@@ -110,8 +105,7 @@ public class EmailSerializer {
     Attachment attachment = null;
 
     @Override
-    public void startElement(String uri, String localName, String qName, Attributes attributes)
-      throws SAXException {
+    public void startElement(String uri, String localName, String qName, Attributes attributes) {
       text = null;
 
       if ("attachment".equals(qName)) {
@@ -121,7 +115,7 @@ public class EmailSerializer {
     }
 
     @Override
-    public void endElement(String uri, String localName, String qName) throws SAXException {
+    public void endElement(String uri, String localName, String qName) {
       if ("to".equals(qName)) {
         target.setTo(text.toString());
         return;
@@ -144,7 +138,7 @@ public class EmailSerializer {
       }
       if ("attachment".equals(qName)) {
         if (attachment != null) {
-          attachment.data = DatatypeConverter.parseBase64Binary(text.toString());
+          attachment.data = Base64.getDecoder().decode(text.toString());
           target.getAttachments().add(attachment);
           attachment = null;
         }
