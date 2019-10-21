@@ -3,6 +3,7 @@ plugins {
 }
 
 dependencies {
+  compile project(":greetgo.email")
   compile 'javax.mail:mail:1.4.7'
 }
 

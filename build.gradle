@@ -10,7 +10,7 @@ allprojects {
   apply plugin: 'idea'
 
   group = 'kz.greetgo'
-  version = '0.1.0'
+  version = '0.1.1'
 
   sourceCompatibility = JavaVersion.VERSION_1_8
   targetCompatibility = JavaVersion.VERSION_1_8

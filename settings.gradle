@@ -1,4 +1,4 @@
 rootProject.name = 'greetgo.email'
 
 include "greetgo.email"
-include "greetgo.email.javax.mail"
+include "greetgo.email.from_spring"

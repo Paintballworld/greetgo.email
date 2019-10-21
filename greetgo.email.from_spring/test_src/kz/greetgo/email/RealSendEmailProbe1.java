@@ -6,14 +6,13 @@ import javax.mail.Message;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.security.Security;
 import java.util.Date;
 import java.util.Properties;
 
 public class RealSendEmailProbe1 {
   public static void main(String[] args) throws Exception {
 
-    Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
+    //java.security.Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
 
     final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
 
@@ -50,5 +49,7 @@ public class RealSendEmailProbe1 {
     t.close();
 
     System.out.println("OK");
+
   }
+
 }
