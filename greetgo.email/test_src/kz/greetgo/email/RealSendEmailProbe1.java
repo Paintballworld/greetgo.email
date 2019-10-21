@@ -10,7 +10,6 @@ import java.security.Security;
 import java.util.Date;
 import java.util.Properties;
 
-
 public class RealSendEmailProbe1 {
   public static void main(String[] args) throws Exception {
 

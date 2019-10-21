@@ -1,0 +1,18 @@
+plugins {
+  id "kz.greetgo.upload-to-maven"
+}
+
+dependencies {
+  compile 'javax.mail:mail:1.4.7'
+}
+
+uploadToMavenCentral {
+  description = "Sending emails with native java"
+  url = 'https://github.com/greetgo/greetgo.email.javax.email'
+  scm.url = 'https://github.com/greetgo/greetgo.email.git'
+  developer {
+    id = 'pompei'
+    name = 'Evgeniy Kolpakov'
+    email = 'ekolpakov@greet-go.com'
+  }
+}
