@@ -1,6 +1,9 @@
 package kz.greetgo.email;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -29,8 +32,7 @@ public class EmailSenderController {
     }
     try {
       //noinspection StatementWithEmptyBody
-      while (hasToSendOne()) {
-      }
+      while (hasToSendOne()) {}
     } catch (Exception e) {
       throw new RuntimeException(e);
     } finally {
@@ -52,13 +54,31 @@ public class EmailSenderController {
     try {
       emailSender.send(info.email);
     } catch (Exception exception) {
-      info.sendingFile.renameTo(info.file);
-      throw exception;
+      if (resendOnException(exception, info.email)) {
+        info.sendingFile.renameTo(info.file);
+        throw exception;
+      }
+
+      {
+        Path parentPath = info.sendingFile.getParentFile().toPath();
+        String name = info.sendingFile.getName();
+
+        try (FileOutputStream fileOutput = new FileOutputStream(parentPath.resolve(name + ".exception.txt").toFile());
+             PrintStream pr = new PrintStream(fileOutput, false, "UTF-8")) {
+          pr.println("" + exception.getClass() + " :: " + exception.getMessage());
+          pr.println();
+          exception.printStackTrace(pr);
+        }
+      }
     }
 
     info.sentFile.getParentFile().mkdirs();
     info.sendingFile.renameTo(info.sentFile);
 
+    return true;
+  }
+
+  protected boolean resendOnException(Exception exception, Email email) {
     return true;
   }
 
