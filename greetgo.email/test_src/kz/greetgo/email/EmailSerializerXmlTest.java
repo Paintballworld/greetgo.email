@@ -24,8 +24,14 @@ public class EmailSerializerXmlTest {
   @Test
   public void serialize__deserialize() throws Exception {
 
+    String body="<html><body>" +
+                  "<div>" +RND.str(20)+ "</div>" +
+                  "<div>" +RND.str(20)+ "</div>" +
+                  "<div>" +RND.str(20)+ "</div>" +
+                  "</body></html>";
+
     Email email = new Email();
-    email.setBody(RND.str(30));
+    email.setBody(body);
     email.setFrom(RND.str(10));
     email.setTo(RND.str(10));
     email.setSubject(RND.str(10));
@@ -66,35 +72,5 @@ public class EmailSerializerXmlTest {
     assertThat(actual.getTo()).isEqualTo(email.getTo());
     assertThat(actual.getCopies()).isEqualTo(email.getCopies());
     assertThat(actual.getAttachments()).isEqualTo(email.getAttachments());
-  }
-
-  @Test
-  public void name() {
-
-    try {
-      Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-
-      Element letter = document.createElement("letter");
-      document.appendChild(letter);
-
-      Element from = document.createElement("from");
-      letter.appendChild(from);
-
-      from.setTextContent("hello world <a> wow </a> \" xxx");
-
-      TransformerFactory transformerFactory = TransformerFactory.newInstance();
-      Transformer        transformer        = transformerFactory.newTransformer();
-      DOMSource          source             = new DOMSource(document);
-      StringWriter       stringWriter       = new StringWriter();
-      StreamResult       result             = new StreamResult(stringWriter);
-
-      transformer.transform(source, result);
-
-      String str = stringWriter.toString();
-      System.out.println("XL95d0069k :: " + str);
-
-    } catch (ParserConfigurationException | TransformerException e) {
-      throw new RuntimeException(e);
-    }
   }
 }
