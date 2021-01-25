@@ -3,14 +3,20 @@ package kz.greetgo.email.files.probes;
 import kz.greetgo.email.Attachment;
 import kz.greetgo.email.Email;
 import kz.greetgo.email.EmailSender;
-import kz.greetgo.email.files.EmailSaver;
+import kz.greetgo.email.files.TestRegister;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 
 public class SaveEmailProbe {
   public static void main(String[] args) {
+
+    TestRegister register = new TestRegister(email -> {},
+                                             new File("build/email/to_send"),
+                                             new File("build/email/sent"));
+
     //noinspection UnnecessaryLocalVariable
-    EmailSaver emailSaver = new EmailSaver("cool", "build/email/to_send");
+    EmailSender emailSaver = register.createEmailSaver();
 
     //noinspection UnnecessaryLocalVariable
     EmailSender emailSender = emailSaver;

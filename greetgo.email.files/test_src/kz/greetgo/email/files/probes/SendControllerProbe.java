@@ -1,14 +1,14 @@
 package kz.greetgo.email.files.probes;
 
-import kz.greetgo.email.Email;
 import kz.greetgo.email.EmailSender;
-import kz.greetgo.email.files.EmailSenderController;
+import kz.greetgo.email.RealEmailSender;
+import kz.greetgo.email.files.TestRegister;
 
 import java.io.File;
 
 public class SendControllerProbe {
   public static void main(String[] args) {
-    EmailSender emailSender = email -> {
+    RealEmailSender emailSender = email -> {
       try {
 
         System.out.println("sending letter " + email);
@@ -24,14 +24,12 @@ public class SendControllerProbe {
       }
     };
 
-    EmailSenderController emailSenderController
-      = new EmailSenderController(emailSender,
-      new File("build/email/to_send"),
-      new File("build/email/sent")
-    );
+    TestRegister abstractRealEmailSendRegister = new TestRegister(emailSender,
+                                                                  new File("build/email/to_send"),
+                                                                  new File("build/email/sent"));
 
-    emailSenderController.sendAllExistingEmails();
+    abstractRealEmailSendRegister.sendAllExistingEmails();
 
-    emailSenderController.cleanOldSentFiles(0);
+    abstractRealEmailSendRegister.cleanOldSentFiles(0);
   }
 }

@@ -3,6 +3,7 @@ package kz.greetgo.email.files;
 import kz.greetgo.email.Email;
 import kz.greetgo.email.EmailSender;
 import kz.greetgo.email.EmailSerializer;
+import kz.greetgo.email.RealEmailSender;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,31 +13,64 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class EmailSenderController {
+public abstract class AbstractRealEmailSendRegister implements RealEmailSendRegister {
 
   private final AtomicBoolean sendingIsGoingOn = new AtomicBoolean(false);
 
-  private final File toSendDir;
-  private final File        sentDir;
-  private final EmailSender emailSender;
+  protected abstract File toSendDir();
 
-  private final EmailSerializer emailSerializer = new EmailSerializer();
+  protected abstract File sentDir();
 
-  public EmailSenderController(EmailSender emailSender, File toSendDir, File sentDir) {
-    this.emailSender = emailSender;
-    this.toSendDir = toSendDir;
-    this.sentDir = sentDir;
+  protected abstract RealEmailSender emailSender();
+
+  protected abstract EmailSerializer emailSerializer();
+
+  public EmailSender createEmailSaver() {
+    return email -> {
+
+      String filename = createSendingFileName();
+
+      File file = toSendDir().toPath().resolve(filename + creatingExtension()).toFile();
+      file.getParentFile().mkdirs();
+
+      emailSerializer().serialize(file, email);
+
+      file.renameTo(toSendDir().toPath().resolve(filename).toFile());
+
+    };
   }
 
+  protected String creatingExtension() {
+    return ".creating";
+  }
+
+  private final Random rnd = new Random();
+
+  protected String createSendingFileName() {
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd-HH.mm.ss.SSS");
+    return sendingFilePrefixName() + '-' + format.format(new Date()) + '.' + rnd.nextInt() + sendReadyExtension();
+  }
+
+  protected String sendReadyExtension() {
+    return ".email.xml";
+  }
+
+  protected String sendingFilePrefixName() {
+    return "sending-";
+  }
+
+  @Override
   public void sendAllExistingEmails() {
     if (!sendingIsGoingOn.compareAndSet(false, true)) {
       return;
     }
     try {
       //noinspection StatementWithEmptyBody
-      while (hasToSendOne()) {}
+      while (hasToSendOne()) {
+      }
     } catch (Exception e) {
       throw new RuntimeException(e);
     } finally {
@@ -50,13 +84,13 @@ public class EmailSenderController {
   }
 
   private boolean hasToSendOne() throws Exception {
-    EmailInfo info = getFirstFromDir(toSendDir);
+    EmailInfo info = getFirstFromDir(toSendDir());
     if (info == null) return false;
 
     if (!info.file.renameTo(info.sendingFile)) return true;
 
     try {
-      emailSender.send(info.email);
+      emailSender().realSend(info.email);
     } catch (Exception exception) {
       if (resendOnException(exception, info.email)) {
         info.sendingFile.renameTo(info.file);
@@ -64,8 +98,8 @@ public class EmailSenderController {
       }
 
       {
-        Path parentPath = info.sendingFile.getParentFile().toPath();
-        String name = info.sendingFile.getName();
+        Path   parentPath = info.sendingFile.getParentFile().toPath();
+        String name       = info.sendingFile.getName();
 
         try (FileOutputStream fileOutput = new FileOutputStream(parentPath.resolve(name + ".exception.txt").toFile());
              PrintStream pr = new PrintStream(fileOutput, false, "UTF-8")) {
@@ -86,8 +120,9 @@ public class EmailSenderController {
     return true;
   }
 
-  private EmailInfo getFirstFromDir(File emailSendDir) throws Exception {
-    File[] files = emailSendDir.listFiles(pathname -> pathname.isFile() && pathname.getName().endsWith(".xml"));
+  private EmailInfo getFirstFromDir(File emailSendDir) {
+    File[] files = emailSendDir
+                     .listFiles(pathname -> pathname.isFile() && pathname.getName().endsWith(sendReadyExtension()));
     if (files == null) {
       return null;
     }
@@ -96,27 +131,27 @@ public class EmailSenderController {
     }
 
     EmailInfo ret = new EmailInfo();
-    ret.file = files[0];
-    ret.email = emailSerializer.deserialize(ret.file);
+    ret.file  = files[0];
+    ret.email = emailSerializer().deserialize(ret.file);
 
-    ret.sendingFile = new File(ret.file.getAbsolutePath() + ".sending");
+    ret.sendingFile = new File(ret.file.getPath() + sendingExtension());
 
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    ret.sentFile = new File(sentDir + "/" + format.format(new Date()) + "/" + ret.file.getName());
+    ret.sentFile = sentDir().toPath().resolve(format.format(new Date())).resolve(ret.file.getName()).toFile();
 
     return ret;
   }
 
-  /**
-   * Removes old files from directory with sent files
-   *
-   * @param daysBefore how old file in days to remove
-   */
+  protected String sendingExtension() {
+    return ".sending";
+  }
+
+  @Override
   public void cleanOldSentFiles(final int daysBefore) {
     final Calendar cal = new GregorianCalendar();
-    final Date now = new Date();
+    final Date     now = new Date();
 
-    for (File file : EmailUtil.findFilesRecursively(sentDir, ".xml")) {
+    for (File file : FindFiles.recursively(sentDir(), sendReadyExtension())) {
       cal.setTimeInMillis(file.lastModified());
       cal.add(Calendar.DAY_OF_YEAR, daysBefore);
       if (cal.getTime().before(now)) {

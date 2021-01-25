@@ -11,10 +11,10 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EmailUtilTest {
+public class FindFilesTest {
 
   @Test
-  public void findFilesRecursively() throws Exception {
+  public void recursively() throws Exception {
     Random rnd = new Random();
 
     String dir = "build/" + rnd.nextLong();
@@ -27,7 +27,7 @@ public class EmailUtilTest {
 
     //
     //
-    List<File> files = EmailUtil.findFilesRecursively(new File(dir), ".txt");
+    List<File> files = FindFiles.recursively(new File(dir), ".txt");
     //
     //
 
@@ -45,7 +45,7 @@ public class EmailUtilTest {
     assertThat(fileSet).doesNotContain(fileLeft.getAbsolutePath().toUpperCase());
 
 
-    assertThat(EmailUtil.findFilesRecursively(new File(dir), null)).hasSize(5);
+    assertThat(FindFiles.recursively(new File(dir), null)).hasSize(5);
   }
 
   private File create(File file) throws IOException {

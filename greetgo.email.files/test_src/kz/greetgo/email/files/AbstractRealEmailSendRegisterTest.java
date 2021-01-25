@@ -2,6 +2,7 @@ package kz.greetgo.email.files;
 
 import kz.greetgo.email.Attachment;
 import kz.greetgo.email.Email;
+import kz.greetgo.email.EmailSender;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -13,18 +14,18 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EmailSenderControllerTest {
+public class AbstractRealEmailSendRegisterTest {
 
   @Test
-  public void send() throws Exception {
+  public void send() {
 
     String sendDir = "build/send";
     String sentDir = "build/sent";
 
-    EmailSaver saver      = new EmailSaver("saver", sendDir);
-    EmailSaver realSender = new EmailSaver("realSender", "build/sentReal");
-
-    EmailSenderController c = new EmailSenderController(realSender, new File(sendDir), new File(sentDir));
+    TestRegister c = new TestRegister(email -> {
+      System.out.println("ThM2VLLJ55 :: real send email " + email);
+    }, new File(sendDir), new File(sentDir));
+    EmailSender saver = c.createEmailSaver();
 
     Email e = new Email();
     e.setBody("body");
@@ -51,8 +52,8 @@ public class EmailSenderControllerTest {
     File sentDir = new File("build/sent_" + (new Date().getTime()));
     sentDir.mkdirs();
 
-    File fOld = new File(sentDir, "old.xml");
-    File fNew = new File(sentDir, "new.xml");
+    File fOld = new File(sentDir, "old.email.xml");
+    File fNew = new File(sentDir, "new.email.xml");
 
     fOld.createNewFile();
     fNew.createNewFile();
@@ -62,7 +63,7 @@ public class EmailSenderControllerTest {
 
     fOld.setLastModified(cal.getTimeInMillis());
 
-    EmailSenderController c = new EmailSenderController(null, null, sentDir);
+    AbstractRealEmailSendRegister c = new TestRegister(null, null, sentDir);
     c.cleanOldSentFiles(10);
 
     assertThat(fOld.exists()).isFalse();

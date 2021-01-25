@@ -35,4 +35,12 @@ public class Attachment {
     result = 31 * result + Arrays.hashCode(data);
     return result;
   }
+
+  @Override
+  public String toString() {
+    return "Attachment{" +
+             "name='" + name + '\'' +
+             ", data=" + Arrays.toString(data) +
+             '}';
+  }
 }

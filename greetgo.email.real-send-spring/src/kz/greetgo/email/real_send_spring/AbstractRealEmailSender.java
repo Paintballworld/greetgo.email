@@ -2,6 +2,7 @@ package kz.greetgo.email.real_send_spring;
 
 import kz.greetgo.email.Attachment;
 import kz.greetgo.email.Email;
+import kz.greetgo.email.RealEmailSender;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;

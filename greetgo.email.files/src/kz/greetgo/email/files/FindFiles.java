@@ -7,9 +7,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-public class EmailUtil {
+public class FindFiles {
 
-  public static List<File> findFilesRecursively(File directory, String extension) {
+  public static List<File> recursively(File directory, String extension) {
     final List<File> result = new ArrayList<>();
     final LinkedList<File> dirsToScan = new LinkedList<>();
     dirsToScan.offerLast(directory);
