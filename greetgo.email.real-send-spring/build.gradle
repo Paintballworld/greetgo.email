@@ -1,0 +1,11 @@
+dependencies {
+
+  compile project(":greetgo.email")
+
+
+
+  implementation "org.springframework:spring-context-support:5.2.0.RELEASE"
+  implementation "com.sun.mail:jakarta.mail:1.6.4"
+  implementation "kz.greetgo.conf:greetgo.conf:$greetgoConfVersion"
+
+}
