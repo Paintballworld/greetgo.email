@@ -148,13 +148,13 @@ public abstract class AbstractFileEmailSendRegister implements EmailSendRegister
   }
 
   @Override
-  public void cleanOldSentEntries(final int daysBefore) {
+  public void cleanOldSentEntries(final int hoursBefore) {
     final Calendar cal = new GregorianCalendar();
     final Date     now = new Date();
 
     for (File file : FindFiles.recursively(sentDir(), sendReadyExtension())) {
       cal.setTimeInMillis(file.lastModified());
-      cal.add(Calendar.DAY_OF_YEAR, daysBefore);
+      cal.add(Calendar.HOUR, hoursBefore);
       if (cal.getTime().before(now)) {
         deleteWithParents(file);
       }

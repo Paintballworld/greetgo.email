@@ -120,7 +120,10 @@ public abstract class AbstractMongoEmailSendRegister implements EmailSendRegiste
     calendar.setTime(now());
     calendar.add(Calendar.HOUR, -hoursBefore);
 
-    collection().deleteMany(lt(SEND_FINISHED_AT, calendar.getTime()));
+    collection().deleteMany(and(
+      eq(SENT, true),
+      lt(SEND_FINISHED_AT, calendar.getTime())
+    ));
 
   }
 

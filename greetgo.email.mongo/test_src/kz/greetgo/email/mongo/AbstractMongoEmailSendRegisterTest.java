@@ -13,11 +13,14 @@ import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Set;
 
 import static com.mongodb.client.model.Filters.eq;
+import static java.util.stream.Collectors.toSet;
 import static kz.greetgo.email.mongo.RecordFields.INSERTED_AT;
 import static kz.greetgo.email.mongo.RecordFields.OPERATION_ID;
 import static kz.greetgo.email.mongo.RecordFields.SEND_FINISHED_AT;
@@ -164,4 +167,49 @@ public class AbstractMongoEmailSendRegisterTest extends TestParent {
 
   }
 
+  @Test
+  public void send__sendAllExistingEmails__inManyThreads() throws InterruptedException {
+    final int emailCount  = 10;
+    final int threadCount = 3;
+
+    MongoDatabase             database     = getTestDb();
+    MongoCollection<Document> collection   = database.getCollection("test_multi_threads_" + RND.strEng(20));
+    List<Email>               realSentList = Collections.synchronizedList(new ArrayList<>());
+
+    AbstractMongoEmailSendRegister testRegister = new AbstractMongoEmailSendRegister() {
+      @Override
+      protected MongoCollection<Document> collection() {
+        return collection;
+      }
+
+      @Override
+      protected RealEmailSender realEmailSender() {
+        return realSentList::add;
+      }
+    };
+
+    EmailSender emailSaver = testRegister.createEmailSaver();
+
+    for (int i = 0; i < emailCount; i++) {
+      emailSaver.send(rndEmail());
+    }
+
+    List<Thread> threadList = new ArrayList<>();
+
+    for (int i = 0; i < threadCount; i++) {
+      threadList.add(new Thread(testRegister::sendAllExistingEmails));
+    }
+
+    for (Thread thread : threadList) {
+      thread.start();
+    }
+    for (Thread thread : threadList) {
+      thread.join();
+    }
+
+    Set<String> allSubjects = realSentList.stream().map(Email::getSubject).collect(toSet());
+
+    assertThat(allSubjects).hasSize(emailCount);
+
+  }
 }
