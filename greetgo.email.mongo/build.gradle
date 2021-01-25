@@ -1,5 +1,21 @@
+plugins {
+  id "kz.greetgo.upload-to-maven"
+  id "kz.greetgo.upload-to-gg-repo"
+}
+
 dependencies {
   compile project(":greetgo.email")
 
   compile "org.mongodb:mongo-java-driver:$mongoDriverVersion"
+}
+
+uploadToMavenCentral {
+  description = "Email-send method using in greetgo!"
+  url = 'https://github.com/greetgo/greetgo.email'
+  scm.url = 'https://github.com/greetgo/greetgo.email.git'
+  developer {
+    id = 'pompei'
+    name = 'Evgeniy Kolpakov'
+    email = 'ekolpakov@greet-go.com'
+  }
 }

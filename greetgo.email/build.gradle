@@ -1,5 +1,6 @@
 plugins {
   id "kz.greetgo.upload-to-maven"
+  id "kz.greetgo.upload-to-gg-repo"
 }
 
 dependencies {
@@ -15,4 +16,3 @@ uploadToMavenCentral {
     email = 'ekolpakov@greet-go.com'
   }
 }
-
