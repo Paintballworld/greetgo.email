@@ -11,9 +11,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.*;
 import java.io.*;
 import java.util.Date;
-
-import static org.fest.assertions.api.Assertions.assertThat;
-
+import java.util.Objects;
 
 public class MimeMessageHelper {
 
@@ -210,7 +208,7 @@ public class MimeMessageHelper {
   }
 
   private void notNull(Object from, String message) {
-    assertThat(from).as(message).isNotNull();
+    Objects.requireNonNull(from, message);
   }
 
   public void setFrom(String from) throws MessagingException {

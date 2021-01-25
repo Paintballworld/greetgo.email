@@ -1,4 +1,8 @@
-package kz.greetgo.email;
+package kz.greetgo.email.files;
+
+import kz.greetgo.email.Email;
+import kz.greetgo.email.EmailSender;
+import kz.greetgo.email.EmailSerializer;
 
 import java.io.File;
 import java.text.SimpleDateFormat;

@@ -1,4 +1,4 @@
-package kz.greetgo.email;
+package kz.greetgo.email.files;
 
 import java.io.File;
 import java.util.ArrayList;

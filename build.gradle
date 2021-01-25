@@ -10,7 +10,7 @@ allprojects {
   apply plugin: 'idea'
 
   group = 'kz.greetgo'
-  version = '0.1.2'
+  version = '1.0.0'
 
   sourceCompatibility = JavaVersion.VERSION_1_8
   targetCompatibility = JavaVersion.VERSION_1_8
@@ -48,8 +48,13 @@ subprojects {
   }
 
   dependencies {
-    compile 'org.easytesting:fest-assert-core:2.0M10'
-    testCompile 'org.testng:testng:6.14.3'
+    ext.assertjVersion = "3.12.2"
+    ext.testNgVersion = "6.14.3"
+    ext.greetgoUtilVersion = "0.1.3"
+
+    testCompile "org.testng:testng:$testNgVersion"
+    testCompile "org.assertj:assertj-core:$assertjVersion"
+    testCompile "kz.greetgo.util:greetgo.util:$greetgoUtilVersion"
   }
 
   tasks.withType(Javadoc) {

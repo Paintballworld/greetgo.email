@@ -1,9 +1,9 @@
-package kz.greetgo.email.probes;
+package kz.greetgo.email.files.probes;
 
 import kz.greetgo.email.Attachment;
 import kz.greetgo.email.Email;
-import kz.greetgo.email.EmailSaver;
 import kz.greetgo.email.EmailSender;
+import kz.greetgo.email.files.EmailSaver;
 
 import java.nio.charset.StandardCharsets;
 

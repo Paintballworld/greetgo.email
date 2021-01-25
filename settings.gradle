@@ -2,3 +2,4 @@ rootProject.name = 'greetgo.email'
 
 include "greetgo.email"
 include "greetgo.email.from_spring"
+include "greetgo.email.files"

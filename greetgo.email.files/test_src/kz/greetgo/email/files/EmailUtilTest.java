@@ -1,4 +1,4 @@
-package kz.greetgo.email;
+package kz.greetgo.email.files;
 
 import org.testng.annotations.Test;
 
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class EmailUtilTest {
 

@@ -1,4 +1,8 @@
-package kz.greetgo.email;
+package kz.greetgo.email.files;
+
+import kz.greetgo.email.Email;
+import kz.greetgo.email.EmailSender;
+import kz.greetgo.email.EmailSerializer;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -15,7 +19,7 @@ public class EmailSenderController {
   private final AtomicBoolean sendingIsGoingOn = new AtomicBoolean(false);
 
   private final File toSendDir;
-  private final File sentDir;
+  private final File        sentDir;
   private final EmailSender emailSender;
 
   private final EmailSerializer emailSerializer = new EmailSerializer();
