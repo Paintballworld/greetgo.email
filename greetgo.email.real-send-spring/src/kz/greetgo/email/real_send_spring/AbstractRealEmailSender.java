@@ -78,7 +78,7 @@ public abstract class AbstractRealEmailSender implements RealEmailSender {
     return impl;
   }
 
-  protected abstract void populateJavaMailProperties(Properties props);
+  protected void populateJavaMailProperties(Properties props) {}
 
   protected void trace(Supplier<String> message) {}
 
