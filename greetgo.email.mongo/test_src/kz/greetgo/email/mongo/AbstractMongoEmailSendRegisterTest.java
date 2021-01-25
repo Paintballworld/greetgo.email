@@ -18,8 +18,11 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
-import static kz.greetgo.email.mongo.RecordFields.*;
 import static kz.greetgo.email.mongo.RecordFields.INSERTED_AT;
+import static kz.greetgo.email.mongo.RecordFields.OPERATION_ID;
+import static kz.greetgo.email.mongo.RecordFields.SEND_FINISHED_AT;
+import static kz.greetgo.email.mongo.RecordFields.SEND_STARTED_AT;
+import static kz.greetgo.email.mongo.RecordFields.SENT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AbstractMongoEmailSendRegisterTest extends TestParent {
@@ -46,6 +49,7 @@ public class AbstractMongoEmailSendRegisterTest extends TestParent {
         return email -> {
           realSentList.add(email);
           time.add(Calendar.SECOND, 30);
+          System.out.println("0cWtcXfLP9 :: Real sent email : " + email);
         };
       }
 
@@ -145,7 +149,7 @@ public class AbstractMongoEmailSendRegisterTest extends TestParent {
       assertThat(document).isNotNull();
     }
 
-    time.add(Calendar.DAY_OF_YEAR, 5);
+    time.add(Calendar.HOUR, 5);
 
     //
     //

@@ -10,8 +10,8 @@ public interface EmailSendRegister {
   /**
    * Removes old sent email entries
    *
-   * @param daysBefore how old entry in days to remove
+   * @param hoursBefore how old entry in hours to remove
    */
-  void cleanOldSentEntries(int daysBefore);
+  void cleanOldSentEntries(int hoursBefore);
 
 }
