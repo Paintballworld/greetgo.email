@@ -23,9 +23,14 @@ import static com.mongodb.client.model.Filters.eq;
 import static java.util.stream.Collectors.toSet;
 import static kz.greetgo.email.mongo.RecordFields.INSERTED_AT;
 import static kz.greetgo.email.mongo.RecordFields.OPERATION_ID;
+import static kz.greetgo.email.mongo.RecordFields.SEND_ERR;
+import static kz.greetgo.email.mongo.RecordFields.SEND_ERR_AT;
+import static kz.greetgo.email.mongo.RecordFields.SEND_ERR_CLASS;
+import static kz.greetgo.email.mongo.RecordFields.SEND_ERR_MESSAGE;
+import static kz.greetgo.email.mongo.RecordFields.SEND_ERR_STACK_STRACE;
 import static kz.greetgo.email.mongo.RecordFields.SEND_FINISHED_AT;
 import static kz.greetgo.email.mongo.RecordFields.SEND_STARTED_AT;
-import static kz.greetgo.email.mongo.RecordFields.SENT;
+import static kz.greetgo.email.mongo.RecordFields.SENT_OK;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AbstractMongoEmailSendRegisterTest extends TestParent {
@@ -92,7 +97,7 @@ public class AbstractMongoEmailSendRegisterTest extends TestParent {
       assertThat(document).isNotNull();
 
       Date     insertedAt     = document.getDate(INSERTED_AT);
-      boolean  sent           = document.getBoolean(SENT, false);
+      boolean  sent           = document.getBoolean(SENT_OK, false);
       Date     sendStartedAt  = document.getDate(SEND_STARTED_AT);
       Date     sendFinishedAt = document.getDate(SEND_FINISHED_AT);
       ObjectId operationId    = document.getObjectId(OPERATION_ID);
@@ -127,7 +132,7 @@ public class AbstractMongoEmailSendRegisterTest extends TestParent {
       assertThat(document).isNotNull();
 
       Date     insertedAt     = document.getDate(INSERTED_AT);
-      boolean  sent           = document.getBoolean(SENT, false);
+      boolean  sent           = document.getBoolean(SENT_OK, false);
       Date     sendStartedAt  = document.getDate(SEND_STARTED_AT);
       Date     sendFinishedAt = document.getDate(SEND_FINISHED_AT);
       ObjectId operationId    = document.getObjectId(OPERATION_ID);
@@ -211,5 +216,66 @@ public class AbstractMongoEmailSendRegisterTest extends TestParent {
 
     assertThat(allSubjects).hasSize(emailCount);
 
+  }
+
+  @Test
+  public void sendAllExistingEmails__errorOnRealSendEmail() {
+
+    MongoDatabase             database     = getTestDb();
+    MongoCollection<Document> collection   = database.getCollection("send_err_" + RND.strEng(20));
+    List<ObjectId>            insertedIdList = new ArrayList<>();
+
+    AbstractMongoEmailSendRegister testRegister = new AbstractMongoEmailSendRegister() {
+      @Override
+      protected MongoCollection<Document> collection() {
+        return collection;
+      }
+
+      @Override
+      protected void useJustInsertedId(ObjectId justInsertedId) {
+        insertedIdList.add(justInsertedId);
+      }
+
+      @Override
+      protected RealEmailSender realEmailSender() {
+        return new RealEmailSender() {
+          @Override
+          public void realSend(Email email) {
+            someMethod();
+          }
+
+          private void someMethod() {
+            someAnotherMethod();
+          }
+
+          private void someAnotherMethod() {
+            throw new RuntimeException("sxtLw1o0NI");
+          }
+        };
+      }
+    };
+
+    EmailSender emailSaver = testRegister.createEmailSaver();
+
+    emailSaver.send(rndEmail());
+
+    //
+    //
+    testRegister.sendAllExistingEmails();
+    //
+    //
+
+    assertThat(insertedIdList).hasSize(1);
+
+    ObjectId documentId = insertedIdList.get(0);
+
+    Document document = collection.find(eq("_id", documentId)).first();
+    assertThat(document).isNotNull();
+
+    assertThat(document.getBoolean(SEND_ERR)).isTrue();
+    assertThat(document.getString(SEND_ERR_MESSAGE)).isEqualTo("sxtLw1o0NI");
+    assertThat(document.getString(SEND_ERR_CLASS)).isEqualTo(RuntimeException.class.getName());
+    assertThat(document.getDate(SEND_ERR_AT)).isNotNull();
+    assertThat(document.getString(SEND_ERR_STACK_STRACE)).isNotNull();
   }
 }

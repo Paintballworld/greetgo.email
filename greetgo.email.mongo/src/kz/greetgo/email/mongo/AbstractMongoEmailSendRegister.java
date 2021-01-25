@@ -11,6 +11,8 @@ import kz.greetgo.email.RealEmailSender;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.security.SecureRandom;
 import java.util.Calendar;
 import java.util.Date;
@@ -26,9 +28,14 @@ import static com.mongodb.client.model.Updates.set;
 import static kz.greetgo.email.mongo.RecordFields.CONTENT;
 import static kz.greetgo.email.mongo.RecordFields.INSERTED_AT;
 import static kz.greetgo.email.mongo.RecordFields.OPERATION_ID;
+import static kz.greetgo.email.mongo.RecordFields.SEND_ERR;
+import static kz.greetgo.email.mongo.RecordFields.SEND_ERR_CLASS;
+import static kz.greetgo.email.mongo.RecordFields.SEND_ERR_AT;
+import static kz.greetgo.email.mongo.RecordFields.SEND_ERR_MESSAGE;
+import static kz.greetgo.email.mongo.RecordFields.SEND_ERR_STACK_STRACE;
 import static kz.greetgo.email.mongo.RecordFields.SEND_FINISHED_AT;
 import static kz.greetgo.email.mongo.RecordFields.SEND_STARTED_AT;
-import static kz.greetgo.email.mongo.RecordFields.SENT;
+import static kz.greetgo.email.mongo.RecordFields.SENT_OK;
 
 public abstract class AbstractMongoEmailSendRegister implements EmailSendRegister {
   protected abstract MongoCollection<Document> collection();
@@ -77,7 +84,7 @@ public abstract class AbstractMongoEmailSendRegister implements EmailSendRegiste
     {
       UpdateResult updateResult = collection().updateOne(
         and(
-          exists(SENT, false),
+          exists(SENT_OK, false),
           exists(OPERATION_ID, false)
         ),
         combine(
@@ -102,16 +109,37 @@ public abstract class AbstractMongoEmailSendRegister implements EmailSendRegiste
 
     Email email = emailSerializer().deserialize(document.getString(CONTENT));
 
-    realEmailSender().realSend(email);
+    try {
+      realEmailSender().realSend(email);
+    } catch (Throwable sendError) {
+
+      StringWriter strWriter = new StringWriter();
+      PrintWriter  printWriter = new PrintWriter(strWriter);
+      sendError.printStackTrace(printWriter);
+      printWriter.flush();
+
+      collection().updateOne(eq("_id", document.getObjectId("_id")),
+                             combine(
+                               set(SEND_ERR, true),
+                               set(SEND_ERR_AT, now()),
+                               set(SEND_ERR_CLASS, sendError.getClass().getName()),
+                               set(SEND_ERR_MESSAGE, sendError.getMessage()),
+                               set(SEND_ERR_STACK_STRACE, strWriter.toString())
+                             ));
+      sendError(sendError);
+      return true;
+    }
 
     collection().updateOne(eq("_id", document.getObjectId("_id")),
                            combine(
-                             set(SENT, true),
+                             set(SENT_OK, true),
                              set(SEND_FINISHED_AT, now())
                            ));
 
     return true;
   }
+
+  protected void sendError(Throwable sendError) {}
 
   @Override
   public void cleanOldSentEntries(int hoursBefore) {
@@ -121,7 +149,7 @@ public abstract class AbstractMongoEmailSendRegister implements EmailSendRegiste
     calendar.add(Calendar.HOUR, -hoursBefore);
 
     collection().deleteMany(and(
-      eq(SENT, true),
+      eq(SENT_OK, true),
       lt(SEND_FINISHED_AT, calendar.getTime())
     ));
 
