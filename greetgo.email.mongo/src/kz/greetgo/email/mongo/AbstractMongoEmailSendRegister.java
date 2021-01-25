@@ -139,6 +139,7 @@ public abstract class AbstractMongoEmailSendRegister implements EmailSendRegiste
     return true;
   }
 
+  @SuppressWarnings("unused")
   protected void sendError(Throwable sendError) {}
 
   @Override
