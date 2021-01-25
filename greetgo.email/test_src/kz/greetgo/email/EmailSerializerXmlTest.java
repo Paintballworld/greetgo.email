@@ -2,19 +2,9 @@ package kz.greetgo.email;
 
 import kz.greetgo.util.RND;
 import org.testng.annotations.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.StringWriter;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,11 +14,11 @@ public class EmailSerializerXmlTest {
   @Test
   public void serialize__deserialize() throws Exception {
 
-    String body="<html><body>" +
-                  "<div>" +RND.str(20)+ "</div>" +
-                  "<div>" +RND.str(20)+ "</div>" +
-                  "<div>" +RND.str(20)+ "</div>" +
-                  "</body></html>";
+    String body = "<html><body>" +
+                    "<div>" + RND.str(20) + "</div>" +
+                    "<div>" + RND.str(20) + "</div>" +
+                    "<div>" + RND.str(20) + "</div>" +
+                    "</body></html>";
 
     Email email = new Email();
     email.setBody(body);
