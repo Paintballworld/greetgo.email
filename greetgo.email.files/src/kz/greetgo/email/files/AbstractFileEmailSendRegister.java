@@ -1,6 +1,7 @@
 package kz.greetgo.email.files;
 
 import kz.greetgo.email.Email;
+import kz.greetgo.email.EmailSendRegister;
 import kz.greetgo.email.EmailSender;
 import kz.greetgo.email.EmailSerializer;
 import kz.greetgo.email.RealEmailSender;
@@ -16,7 +17,7 @@ import java.util.GregorianCalendar;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public abstract class AbstractRealEmailSendRegister implements RealEmailSendRegister {
+public abstract class AbstractFileEmailSendRegister implements EmailSendRegister {
 
   private final AtomicBoolean sendingIsGoingOn = new AtomicBoolean(false);
 
@@ -147,7 +148,7 @@ public abstract class AbstractRealEmailSendRegister implements RealEmailSendRegi
   }
 
   @Override
-  public void cleanOldSentFiles(final int daysBefore) {
+  public void cleanOldSentEntries(final int daysBefore) {
     final Calendar cal = new GregorianCalendar();
     final Date     now = new Date();
 

@@ -1,6 +1,5 @@
 package kz.greetgo.email.files.probes;
 
-import kz.greetgo.email.EmailSender;
 import kz.greetgo.email.RealEmailSender;
 import kz.greetgo.email.files.TestRegister;
 
@@ -30,6 +29,6 @@ public class SendControllerProbe {
 
     abstractRealEmailSendRegister.sendAllExistingEmails();
 
-    abstractRealEmailSendRegister.cleanOldSentFiles(0);
+    abstractRealEmailSendRegister.cleanOldSentEntries(0);
   }
 }

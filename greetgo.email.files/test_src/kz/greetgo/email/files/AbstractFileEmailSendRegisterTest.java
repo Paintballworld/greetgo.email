@@ -14,7 +14,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AbstractRealEmailSendRegisterTest {
+public class AbstractFileEmailSendRegisterTest {
 
   @Test
   public void send() {
@@ -63,8 +63,8 @@ public class AbstractRealEmailSendRegisterTest {
 
     fOld.setLastModified(cal.getTimeInMillis());
 
-    AbstractRealEmailSendRegister c = new TestRegister(null, null, sentDir);
-    c.cleanOldSentFiles(10);
+    AbstractFileEmailSendRegister c = new TestRegister(null, null, sentDir);
+    c.cleanOldSentEntries(10);
 
     assertThat(fOld.exists()).isFalse();
     assertThat(fNew.exists()).isTrue();

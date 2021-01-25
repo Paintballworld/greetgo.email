@@ -6,7 +6,7 @@ import kz.greetgo.email.RealEmailSender;
 
 import java.io.File;
 
-public class TestRegister extends AbstractRealEmailSendRegister {
+public class TestRegister extends AbstractFileEmailSendRegister {
   final File            toSendDir;
   final File            sentDir;
   final RealEmailSender realSender;
