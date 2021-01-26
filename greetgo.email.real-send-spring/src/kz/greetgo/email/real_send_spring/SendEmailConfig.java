@@ -25,7 +25,7 @@ public interface SendEmailConfig {
   String username();
 
   @Description("Пароль пользователя")
-  @DefaultStrValue("GreetgoPass2020")
+  @DefaultStrValue("***")
   String password();
 
   @Description("Значение поля from при отправке писем")
