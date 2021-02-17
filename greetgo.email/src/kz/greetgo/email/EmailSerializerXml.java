@@ -143,6 +143,11 @@ public class EmailSerializerXml implements EmailSerializer {
 
     StringBuilder text = null;
 
+    private String text() {
+      StringBuilder x = text;
+      return x == null ? null : x.toString();
+    }
+
     @Override
     public void characters(char[] ch, int start, int length) {
       if (text == null) text = new StringBuilder();
@@ -164,28 +169,28 @@ public class EmailSerializerXml implements EmailSerializer {
     @Override
     public void endElement(String uri, String localName, String qName) {
       if ("to".equals(qName)) {
-        target.setTo(text.toString());
+        target.setTo(text());
         return;
       }
       if ("copy".equals(qName)) {
-        target.getCopies().add(text.toString());
+        target.getCopies().add(text());
         return;
       }
       if ("from".equals(qName)) {
-        target.setFrom(text.toString());
+        target.setFrom(text());
         return;
       }
       if ("body".equals(qName)) {
-        target.setBody(text.toString());
+        target.setBody(text());
         return;
       }
       if ("subject".equals(qName)) {
-        target.setSubject(text.toString());
+        target.setSubject(text());
         return;
       }
       if ("attachment".equals(qName)) {
         if (attachment != null) {
-          attachment.data = Base64.getDecoder().decode(text.toString());
+          attachment.data = Base64.getDecoder().decode(text());
           target.getAttachments().add(attachment);
           attachment = null;
         }
